@@ -1,0 +1,171 @@
+definitions:
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+  internal_transport_handlers.CreateShortUrlRequest:
+    properties:
+      url:
+        type: string
+    type: object
+  internal_transport_handlers.CreateShortUrlResponse:
+    properties:
+      short_url:
+        type: string
+    type: object
+  urlshortener_internal_models.Stat:
+    properties:
+      url_id:
+        type: integer
+      visited_at:
+        type: string
+      visited_count:
+        type: integer
+    type: object
+host: localhost:9090
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is my first swagger documentation.
+  termsOfService: http://swagger.io/terms/
+  title: Super API
+  version: "1.0"
+paths:
+  /{link}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет короткую ссылку из базы данных
+      parameters:
+      - description: Короткая ссылка
+        in: path
+        name: link
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Короткая ссылка успешно удалена
+        "404":
+          description: Короткая ссылка не найдена
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Удаление короткой ссылки
+      tags:
+      - shortUrl
+    get:
+      consumes:
+      - application/json
+      description: Перенаправляет на оригинальную ссылку, связанную с короткой ссылкой
+      parameters:
+      - description: Короткая ссылка
+        in: path
+        name: link
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Перенаправление на оригинальную ссылку
+          schema:
+            type: string
+        "404":
+          description: Короткая ссылка не найдена
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Получение оригинальной ссылки
+      tags:
+      - shortUrl
+  /shortener:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех созданных коротких ссылок
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список коротких ссылок
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Получение списка коротких ссылок
+      tags:
+      - shortUrl
+    post:
+      consumes:
+      - application/json
+      description: Создание короткой ссылки
+      parameters:
+      - description: Входящие данные
+        in: body
+        name: rq
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_handlers.CreateShortUrlRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_handlers.CreateShortUrlResponse'
+        "400":
+          description: Некорректный URL
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Создание короткой ссылки
+      tags:
+      - shortUrl
+  /stats/{link}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает статистику по количеству переходов по короткой ссылке
+      parameters:
+      - description: Короткая ссылка
+        in: path
+        name: link
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статистика по ссылке
+          schema:
+            $ref: '#/definitions/urlshortener_internal_models.Stat'
+        "404":
+          description: Статистика не найдена
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Получение статистики по ссылке
+      tags:
+      - shortUrl
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
