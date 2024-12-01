@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"urlshortener/internal/models"
 
 	"github.com/jmoiron/sqlx"
@@ -37,9 +36,8 @@ func (u *UrlRepository) Create(ctx context.Context, url models.InsertURL) error 
 
 func (u *UrlRepository) GetURLs(ctx context.Context) ([]models.URL, error) {
 	var url []models.URL
-	err := u.db.SelectContext(ctx, &url, "select * from short_url where is_deleted = false order by created_at desc")
+	err := u.db.SelectContext(ctx, &url, "select * from short_url where is_deleted = false and expires_at > now() order by created_at desc")
 	if err != nil {
-		fmt.Println(err, "error getting url")
 		return nil, err
 	}
 	return url, nil
